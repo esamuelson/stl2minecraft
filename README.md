@@ -9,3 +9,7 @@ output_file (Output Minecraft Function)
 Open Minecraft and Execute Function (FIXME: Add directions to run a function in minecraft)
 
 It may be handy to use the move_all_points function to adjust the location (typically Y to be above ground).  
+
+
+You need to install numpy-stl
+pip install numpy-stl
