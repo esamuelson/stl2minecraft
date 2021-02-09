@@ -3,7 +3,7 @@ import unittest
 from enum import Enum
 from stl import mesh
 import matplotlib.pyplot as plt
-
+import filecmp
 
 class Dimension(Enum):
     X = 0
@@ -13,6 +13,11 @@ class Dimension(Enum):
 
 class STL2Minecraft:
     debug_enable = False
+
+    def stl_to_minecraft(self, input_file, output_file, texture, offset):
+        points = self.move_all_points(self.convert_stl_to_points(input_file), offset)
+        self.points_to_minecraft_function(points, texture, output_file)
+        return points
 
     def convert_stl_to_points(self, input_file):
         your_mesh = mesh.Mesh.from_file(input_file)
@@ -239,17 +244,19 @@ class TestMethods(unittest.TestCase):
     def test_move_all_points(self):
         self.assertEqual(self.stl_2_minecraft.move_all_points([[-1, -2, -3]], [3, 2, 1]), [[2, 0, -2]])
 
-texture = "minecraft:oak_planks"
-input_file = r'C:\Users\erika\pyramid.stl'
-output_file = r'C:\Users\erika\AppData\Roaming\.minecraft\saves\Python Test\datapacks\Creative Utilities\data\esamuelson\functions\crea-util\pyramid.mcfunction'
+    def stl_test_helper(self, input_file):
+        texture = 'minecraft:oak_planks'
+        output_file = r'unit_tests/.temp'
+        compare_file = input_file + r'.mcfunction'
+        points = self.stl_2_minecraft.stl_to_minecraft(input_file, output_file, texture, [0,100,0])
+        self.stl_2_minecraft.plot_surface(points, ".")
+        self.assertTrue(filecmp.cmp(output_file, compare_file), 'Output files mismatch')
 
-stl_2_minecraft = STL2Minecraft()
-points = stl_2_minecraft.move_all_points(stl_2_minecraft.convert_stl_to_points(input_file), [0, 100, 0])
-stl_2_minecraft.plot_surface(points, ".")
-stl_2_minecraft.points_to_minecraft_function(points, texture, output_file)
+    def test_pyramid_stl(self):
+        self.stl_test_helper(r'unit_tests/pyramid.stl')
+
+    def test_simple_cube_stl(self):
+        self.stl_test_helper(r'unit_tests/simple_cube.stl')
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
